@@ -1,10 +1,19 @@
 const express = require('express');
 const fs = require('fs');
+const beersRepository = require('./beersRepository');
 const bodyParser = require('body-parser');
 
 var app = express();
 
 app.use(bodyParser.json());
+
+var checkBeersFile = () => {
+  fs.access(__dirname + '/beers.json', fs.constants.F_OK, (err) => {
+    err && fs.writeFileSync(__dirname + '/beers.json', '[]');
+  });
+}
+
+checkBeersFile();
 
 app.get('/beers', (req, res) => {
   var beers = fs.readFileSync(__dirname + '/beers.json');
@@ -20,17 +29,9 @@ app.post('/beers', (req, res) => {
 
 app.delete('/beers/:id', (req, res) => {
   var id = parseInt(req.params.id);
-  var removed = removeBeer(id);
+  var removed = beersRepository.removeBeer(id);
   res.send({removed});
 });
-
-var removeBeer = (id) => {
-  var beers = JSON.parse(fs.readFileSync(__dirname + '/beers.json'));
-  var toRemove = beers.find((beer) => beer.id === id);
-  var filtered = beers.filter((beer) => beer.id !== id);
-  fs.writeFileSync(__dirname + '/beers.json', JSON.stringify(filtered, undefined, 2));
-  return toRemove;
-}
 
 app.listen(8000, () => {
   console.log(`Started up at port 8000`);
