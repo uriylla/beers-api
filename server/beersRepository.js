@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 var removeBeer = (id) => {
   var beers = JSON.parse(fs.readFileSync(__dirname + '/beers.json'));
   var toRemove = beers.find((beer) => beer.id === id);
