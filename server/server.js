@@ -33,6 +33,6 @@ app.delete('/beers/:id', (req, res) => {
   res.send({removed});
 });
 
-app.listen(8000, () => {
-  console.log(`Started up at port 8000`);
+app.listen(process.env.PORT || 8080, () => {
+  console.log(`Started up at port ${process.env.PORT || 8080}`);
 });
