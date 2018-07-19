@@ -21,7 +21,7 @@ app.get('/beers', (req, res) => {
   params._id = dateStartId && dateEndId ? { $gt: dateStartId, $lt: dateEndId } : undefined;
   Object.keys(params).forEach(key => params[key] === undefined ? delete params[key] : '');
   Beer.find(params).then((beers) => {
-    res.send(beers);
+    res.send({beers});
   }, (e) => {
     res.status(400).send(e);
   });
@@ -29,8 +29,16 @@ app.get('/beers', (req, res) => {
 
 app.get('/beers/:id', (req, res) => {
   var id = req.params.id;
-  Beer.find({_id: id}).then((beers) => {
-    res.send(beers);
+
+  if (!ObjectID.isValid(id)) {
+    return res.status(404).send();
+  }
+
+  Beer.findById(id).then((beer) => {
+    if (!beer) {
+      return res.status(404).send();
+    }
+    res.send({beer});
   }, (e) => {
     res.status(400).send(e);
   });
