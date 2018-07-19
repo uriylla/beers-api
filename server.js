@@ -11,8 +11,26 @@ var port = process.env.PORT || 8000;
 app.use(bodyParser.json());
 
 app.get('/beers', (req, res) => {
-  Beer.find().then((beers) => {
-    res.send({beers});
+  var dateStartId = objectIdWithTimestamp(req.query.dateStart);
+  var dateEndId = objectIdWithTimestamp(req.query.dateEnd);
+  var params = {
+    '_winner': req.query.winner,
+    '_loser': req.query.loser,
+    'amount': req.query.amount
+  }
+  params._id = dateStartId && dateEndId ? { $gt: dateStartId, $lt: dateEndId } : undefined;
+  Object.keys(params).forEach(key => params[key] === undefined ? delete params[key] : '');
+  Beer.find(params).then((beers) => {
+    res.send(beers);
+  }, (e) => {
+    res.status(400).send(e);
+  });
+});
+
+app.get('/beers/:id', (req, res) => {
+  var id = req.params.id;
+  Beer.find({_id: id}).then((beers) => {
+    res.send(beers);
   }, (e) => {
     res.status(400).send(e);
   });
@@ -55,5 +73,18 @@ app.delete('/beers/:id', (req, res) => {
 app.listen(port, () => {
   console.log(`Started up at port ${port}`);
 });
+
+var objectIdWithTimestamp = function (timestamp) {
+  if(!timestamp) return undefined;
+  if (typeof(timestamp) == 'string') {
+      timestamp = new Date(timestamp);
+  }
+
+  var hexSeconds = Math.floor(timestamp/1000).toString(16);
+  console.log(hexSeconds);
+  var constructedObjectId = new ObjectID(hexSeconds + "0000000000000000");
+
+  return constructedObjectId
+}
 
 module.exports = {app};

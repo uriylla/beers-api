@@ -6,12 +6,12 @@ const {beers, populateBeers} = require('./seed/seed');
 const {app} = require('./../server');
 const {Beer} = require('./../models/beer');
 
-// beforeEach(populateBeers);
-
+beforeEach(populateBeers);
 
 describe('POST /beers', () => {
   it('should create a new Beer', (done) => {
     var amount = 2;
+    expect(amount).toBe(2);
     request(app)
       .post('/beers')
       .send({amount})
@@ -28,6 +28,6 @@ describe('POST /beers', () => {
           expect(beers[0].amount).toBe(amount);
           done();
         }).catch((e) => done(e));
-      });
-  }).timeout(0);
+      })
+  });
 });
